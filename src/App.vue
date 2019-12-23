@@ -140,6 +140,7 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+  cursor: url("./assets/cursor.svg"), pointer;
 }
 body {
   background-color: black;
