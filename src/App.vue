@@ -4,6 +4,9 @@
     v-touch:start="startHandler"
     v-touch:touchhold="touchHoldHandler"
   >
+    <div id="pixiApp"></div>
+    <canvas id="canvas"></canvas>
+
     <div class="example h-full">
       <transition name="fade" mode="out-in" appear>
         <PageHome
@@ -41,6 +44,9 @@ import PageHome from "@/components/PageHome";
 import PageLoading from "@/components/PageLoading";
 import PageExperience from "@/components/PageExperience";
 
+import * as PIXI from "pixi.js";
+// import { OldFilmFilter } from "@pixi/filter-old-film";
+
 export default {
   name: "app",
   data: function() {
@@ -53,7 +59,10 @@ export default {
     };
   },
   components: { PageHome, PageLoading, PageExperience },
-  mounted() {},
+  mounted() {
+    this.filmgrain();
+    // this.drawCanvas();
+  },
 
   methods: {
     enterFullscreen() {
@@ -88,12 +97,125 @@ export default {
       } else if (this.state.screen === "loadingExperience") {
         this.state.screen = "experience";
       }
+    },
+    drawCanvas() {
+      let cvs = document.getElementById("pixiApp");
+      //Create a Pixi Application
+      const app = new PIXI.Application({
+        antialias: true,
+        transparent: true,
+        resolution: window.devicePixelRatio,
+        autoResize: true,
+        resizeTo: window
+      });
+
+      cvs.appendChild(app.view);
+      app.renderer.backgroundColor = 0x061639;
+
+      const basicText = new PIXI.Text("Basic text in pixi");
+      basicText.x = 50;
+      basicText.y = 100;
+
+      // Draw a green rectangle
+      const rect = new PIXI.Graphics()
+        .beginFill(0x00ff00)
+        .drawRect(40, 40, 200, 200);
+
+      // Add a blur filter
+      rect.filters = [new PIXI.filters.BlurFilter()];
+
+      // Display rectangle
+      app.stage.addChild(rect);
+    },
+    filmgrain() {
+      var viewWidth,
+        viewHeight,
+        canvas = document.getElementById("canvas"),
+        ctx;
+
+      // change these settings
+      var patternSize = 80,
+        patternScaleX = 1,
+        patternScaleY = 1,
+        patternRefreshInterval = 3,
+        patternAlpha = 14; // int between 0 and 255,
+
+      var patternPixelDataLength = patternSize * patternSize * 4,
+        patternCanvas,
+        patternCtx,
+        patternData,
+        frame = 0;
+
+      initCanvas();
+      initGrain();
+      requestAnimationFrame(loop);
+
+      // create a canvas which will render the grain
+      function initCanvas() {
+        viewWidth = canvas.width = canvas.clientWidth;
+        viewHeight = canvas.height = canvas.clientHeight;
+        ctx = canvas.getContext("2d");
+
+        ctx.scale(patternScaleX, patternScaleY);
+      }
+
+      // create a canvas which will be used as a pattern
+      function initGrain() {
+        patternCanvas = document.createElement("canvas");
+        patternCanvas.width = patternSize;
+        patternCanvas.height = patternSize;
+        patternCtx = patternCanvas.getContext("2d");
+        patternData = patternCtx.createImageData(patternSize, patternSize);
+      }
+
+      // put a random shade of gray into every pixel of the pattern
+      function update() {
+        var value;
+
+        for (var i = 0; i < patternPixelDataLength; i += 4) {
+          value = (Math.random() * 255) | 0;
+
+          patternData.data[i] = value;
+          patternData.data[i + 1] = value;
+          patternData.data[i + 2] = value;
+          patternData.data[i + 3] = patternAlpha;
+        }
+
+        patternCtx.putImageData(patternData, 0, 0);
+      }
+
+      // fill the canvas using the pattern
+      function draw() {
+        ctx.clearRect(0, 0, viewWidth, viewHeight);
+
+        ctx.fillStyle = ctx.createPattern(patternCanvas, "repeat");
+        ctx.fillRect(0, 0, viewWidth, viewHeight);
+      }
+
+      function loop() {
+        if (++frame % patternRefreshInterval === 0) {
+          update();
+          draw();
+        }
+
+        requestAnimationFrame(loop);
+      }
     }
   }
 };
 </script>
 
 <style>
+#canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+}
 html,
 body {
   margin: 0;
@@ -174,6 +296,15 @@ video:focus {
 
 .h-full {
   height: 100%;
+}
+
+.h-full {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
 }
 
 a {

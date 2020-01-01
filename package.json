@@ -8,9 +8,12 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@pixi/filter-old-film": "^3.0.3",
     "animejs": "^3.1.0",
     "core-js": "^3.6.0",
     "howler": "^2.1.2",
+    "pixi-filters": "^3.0.3",
+    "pixi.js": "^5.2.0",
     "vue": "^2.6.11",
     "vue-animejs": "^2.1.1",
     "vue-clickaway": "^2.2.2",
