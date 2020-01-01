@@ -1,54 +1,24 @@
 <template>
-  <div id="app">
+  <div
+    id="app"
+    v-touch:start="startHandler"
+    v-touch:touchhold="touchHoldHandler"
+  >
     <div class="example h-full">
-      <transition name="fade">
-        <div
-          class="h-center padding-sides"
+      <transition name="fade" mode="out-in" appear>
+        <PageHome
           v-if="state.screen === 'home' || state.screen === 'register'"
-        >
-          <video
-            ref="full"
-            preload
-            autoplay
-            muted
-            loop
-            class="w-video"
-            poster="./assets/umbra_poster.jpg"
-          >
-            <source src="./assets/umbra.mp4" type="video/mp4" />
-            Sorry, your browser doesn't support embedded videos.
-          </video>
-
-          <div class="title-container w-full noselect">
-            <div>
-              <h2 class="title font-light absolute animation2" ref="element2">
-                An inmersive experience to find yourself.
-              </h2>
-            </div>
-            <div>
-              <h3
-                class="sub-title absolute font-regular animation"
-                ref="element"
-              >
-                <span>Coming Soon</span>
-              </h3>
-            </div>
-          </div>
-          <div class="bottom noselect">
-            <span
-              href="https://paypal.me/pools/c/8kxzH2J8F0"
-              class="animation3 regular"
-              @click="away"
-            >
-              Hold the mouse<br />
-              to continue
-            </span>
-          </div>
-        </div>
+        ></PageHome>
+        <PageLoading
+          v-else-if="state.screen === 'loadingExperience'"
+        ></PageLoading>
+        <PageExperience
+          v-else-if="state.screen === 'experience'"
+        ></PageExperience>
       </transition>
       <transition name="fade">
         <div class="inline-block" v-if="state.screen === 'register'">
-          <div class="input-group" v-on-clickaway="away">
+          <div class="input-group">
             <input type="text" placeholder="Name" v-model="name" />
             <input
               type="number"
@@ -67,10 +37,11 @@
 
 <script>
 // import { Howl } from "howler";
-import { mixin as clickaway } from "vue-clickaway";
+import PageHome from "@/components/PageHome";
+import PageLoading from "@/components/PageLoading";
+import PageExperience from "@/components/PageExperience";
 
 export default {
-  mixins: [clickaway],
   name: "app",
   data: function() {
     return {
@@ -81,35 +52,8 @@ export default {
       state: { screen: "home" }
     };
   },
-  components: {},
-  mounted() {
-    this.$refs.element2.innerHTML = this.$refs.element2.textContent.replace(
-      /\S/g,
-      "<span class='letter'>$&</span>"
-    );
-    this.$refs.element.innerHTML = this.$refs.element.textContent.replace(
-      /\S/g,
-      "<span class='letter'>$&</span>"
-    );
-
-    this.$anime({
-      targets: ".animation2 .letter",
-      keyframes: [{ opacity: 1 }, { opacity: 0 }],
-      easing: "easeInOutQuad",
-      duration: 7500,
-      delay: this.$anime.stagger(190),
-      loop: true
-    });
-
-    this.$anime({
-      targets: ".animation .letter",
-      keyframes: [{ opacity: 1 }, { opacity: 0 }],
-      easing: "easeInOutQuad",
-      duration: 8500,
-      delay: this.$anime.stagger(220, { start: 4800 }),
-      loop: true
-    });
-  },
+  components: { PageHome, PageLoading, PageExperience },
+  mounted() {},
 
   methods: {
     enterFullscreen() {
@@ -121,13 +65,28 @@ export default {
     fullscreenChange(fullscreen) {
       this.fullscreen = fullscreen;
     },
-    away: function() {
-      console.log("clicked away");
-      this.state.screen = "register";
-      this.enterFullscreen();
+    register: function() {
       if (this.name && this.year_birth && this.language) {
         console.log("Form full");
         this.state.screen = "loadingExperience";
+        setTimeout(() => {
+          this.state.screen = "experience";
+        }, 6400);
+      }
+    },
+    startHandler() {
+      console.log("started");
+    },
+    touchHoldHandler() {
+      console.log("ended");
+
+      if (this.state.screen === "home") {
+        this.enterFullscreen();
+        this.state.screen = "register";
+      } else if (this.state.screen === "register") {
+        this.register();
+      } else if (this.state.screen === "loadingExperience") {
+        this.state.screen = "experience";
       }
     }
   }
@@ -200,41 +159,6 @@ video:focus {
   opacity: 0;
 }
 
-.title {
-  font-size: 1.15rem;
-  font-weight: normal;
-  white-space: nowrap;
-
-  top: 1.65rem;
-  z-index: 10;
-
-  filter: blur(0.08rem);
-}
-
-.sub-title {
-  font-size: 3rem;
-  font-weight: normal;
-  white-space: nowrap;
-
-  z-index: 5;
-  color: #0f0f0f;
-  filter: blur(0.15rem);
-}
-
-@media screen and (min-width: 650px) {
-  .sub-title {
-    font-size: 4.2rem;
-    margin-top: -1.3rem;
-  }
-}
-
-@media screen and (min-width: 650px) {
-  .title {
-    top: 1.2rem;
-    font-size: 1.3rem;
-  }
-}
-
 .font-light {
   font-family: "Tiempos Headline", Times, serif;
   font-weight: 300;
@@ -252,16 +176,6 @@ video:focus {
   height: 100%;
 }
 
-.title-container {
-  margin: 0;
-  padding: 0;
-  top: 0;
-  left: 0;
-  right: 0;
-  position: relative;
-  text-align: center;
-}
-
 a {
   text-decoration: none;
   font-size: 1.2rem;
@@ -275,13 +189,7 @@ a {
     filter: blur(0.55rem);
   }
 }
-.h-center {
-  height: 80%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
+
 .padding-sides {
   padding: 0 1.5rem;
 }
@@ -290,16 +198,6 @@ a {
   bottom: 6%;
   left: 0;
   right: 0;
-}
-
-.w-video {
-  margin-top: 3rem;
-  width: 75%;
-}
-@media screen and (min-width: 650px) {
-  .w-video {
-    width: 40%;
-  }
 }
 
 .inline-block {
@@ -341,8 +239,8 @@ input[type="number"] {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 5s;
-  transition-delay: 1s;
+  transition: opacity 3s;
+  transition-delay: 0.5s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;

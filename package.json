@@ -15,7 +15,8 @@
     "vue-animejs": "^2.1.1",
     "vue-clickaway": "^2.2.2",
     "vue-directive-long-press": "^1.1.0",
-    "vue-fullscreen": "^2.1.5"
+    "vue-fullscreen": "^2.1.5",
+    "vue2-touch-events": "^2.1.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.1",
