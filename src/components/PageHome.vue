@@ -85,7 +85,7 @@ export default {
 
 <style scoped>
 .h-center {
-  height: 80%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -101,12 +101,19 @@ export default {
   }
 }
 
-.title-container {
-  margin: 0;
-  padding: 0;
-  top: 0;
+.absolute {
+  position: absolute;
+
   left: 0;
   right: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.title-container {
+  margin: 0;
+  margin-bottom: 20vh;
+  padding: 0;
   position: relative;
   text-align: center;
 }
@@ -115,11 +122,9 @@ export default {
   font-size: 1.15rem;
   font-weight: normal;
   white-space: nowrap;
-
-  top: 1.65rem;
   z-index: 10;
-
   filter: blur(0.08rem);
+  top: 1.3rem;
 }
 
 .animation3 {
@@ -130,6 +135,7 @@ export default {
   font-size: 3rem;
   font-weight: normal;
   white-space: nowrap;
+  top: 50%;
 
   z-index: 5;
   color: #0f0f0f;
@@ -139,14 +145,13 @@ export default {
 @media screen and (min-width: 650px) {
   .sub-title {
     font-size: 4.2rem;
-    margin-top: -1.3rem;
   }
 }
 
 @media screen and (min-width: 650px) {
   .title {
-    top: 1.2rem;
     font-size: 1.3rem;
+    top: 2.2rem;
   }
 }
 </style>

@@ -4,8 +4,8 @@
     v-touch:start="startHandler"
     v-touch:touchhold="touchHoldHandler"
   >
-    <div id="pixiApp"></div>
-    <canvas id="canvas"></canvas>
+    <div id="pixiApp" class="noselect"></div>
+    <canvas id="canvas" class="noselect"></canvas>
 
     <div class="example h-full">
       <transition name="fade" mode="out-in" appear>
@@ -16,11 +16,12 @@
           v-else-if="state.screen === 'loadingExperience'"
         ></PageLoading>
         <PageExperience
+          ref="experience"
           v-else-if="state.screen === 'experience'"
         ></PageExperience>
       </transition>
-      <transition name="fade">
-        <div class="inline-block" v-if="state.screen === 'register'">
+      <transition name="fade" appear>
+        <div class="bottom-input" v-if="state.screen === 'register'">
           <div class="input-group">
             <input type="text" placeholder="Name" v-model="name" />
             <input
@@ -39,7 +40,8 @@
 </template>
 
 <script>
-// import { Howl } from "howler";
+// eslint-disable-next-line no-unused-vars
+import { Howl, Howler } from "howler";
 import PageHome from "@/components/PageHome";
 import PageLoading from "@/components/PageLoading";
 import PageExperience from "@/components/PageExperience";
@@ -55,13 +57,41 @@ export default {
       name: "Santi",
       year_birth: "1997",
       language: "",
-      state: { screen: "home" }
+      state: { screen: "home" },
+      sound1: "",
+      sound2: "",
+      holdSound: ""
     };
   },
   components: { PageHome, PageLoading, PageExperience },
   mounted() {
-    this.filmgrain();
+    // this.filmgrain();
     // this.drawCanvas();
+
+    if (this.state.screen === "register") {
+      console.log("You are registering right?");
+    }
+
+    this.sound1 = new Howl({
+      src: ["sounds/begining_web.webm", "sounds/begining_web.mp3"],
+      preload: true,
+      loop: true
+    });
+    this.sound2 = new Howl({
+      src: ["sounds/loading_experience.webm", "sounds/loading_experience.mp3"],
+      preload: true,
+      loop: true
+    });
+    this.holdSound = new Howl({
+      src: ["sounds/hold.mp3"],
+      preload: true
+    });
+
+    this.sound1.play();
+    this.sound1.fade(0, 1, 2000);
+
+    // Change global volume.
+    // Howler.volume(0.5);
   },
 
   methods: {
@@ -76,26 +106,29 @@ export default {
     },
     register: function() {
       if (this.name && this.year_birth && this.language) {
+        this.sound1.fade(1, 0, 2000);
         console.log("Form full");
         this.state.screen = "loadingExperience";
+        this.sound2.play();
+        this.sound2.fade(0, 1, 2000);
         setTimeout(() => {
           this.state.screen = "experience";
-        }, 6400);
+          this.sound2.fade(1, 0, 1000);
+        }, 7000);
       }
     },
     startHandler() {
-      console.log("started");
+      console.log("started click");
     },
     touchHoldHandler() {
-      console.log("ended");
+      console.log("longpress");
+      this.holdSound.play();
 
       if (this.state.screen === "home") {
-        this.enterFullscreen();
+        // this.enterFullscreen();
         this.state.screen = "register";
       } else if (this.state.screen === "register") {
         this.register();
-      } else if (this.state.screen === "loadingExperience") {
-        this.state.screen = "experience";
       }
     },
     drawCanvas() {
@@ -138,7 +171,7 @@ export default {
         patternScaleX = 1,
         patternScaleY = 1,
         patternRefreshInterval = 3,
-        patternAlpha = 14; // int between 0 and 255,
+        patternAlpha = 12; // int between 0 and 255,
 
       var patternPixelDataLength = patternSize * patternSize * 4,
         patternCanvas,
@@ -215,6 +248,7 @@ export default {
   width: 100%;
   height: 100%;
   z-index: 20;
+  pointer-events: none;
 }
 html,
 body {
@@ -222,11 +256,19 @@ body {
   padding: 0;
   height: 100%;
   cursor: url("./assets/cursor.svg"), pointer;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 1.4s ease-in-out;
 }
+
 body {
   background-color: black;
   color: #b4b4b4;
   overflow: hidden;
+}
+
+*::-moz-selection {
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 #app {
@@ -235,6 +277,15 @@ body {
   height: 100%;
   font-family: "Tiempos Headline", Times, serif;
   font-weight: 300;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 400;
 }
 
 @font-face {
@@ -266,15 +317,6 @@ video:focus {
   color: transparent;
 }
 
-.absolute {
-  top: 0;
-  left: 0;
-  right: 0;
-  position: absolute;
-  padding: 0;
-  margin: 0;
-}
-
 .animation2 .letter,
 .animation .letter,
 .animation3 .letter {
@@ -288,6 +330,10 @@ video:focus {
 .font-regular {
   font-family: "Tiempos Headline", Times, serif;
   font-weight: 400;
+}
+
+.hidden {
+  display: none;
 }
 
 .w-full {
@@ -304,7 +350,7 @@ video:focus {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: -1;
+  z-index: 10;
 }
 
 a {
@@ -331,29 +377,58 @@ a {
   right: 0;
 }
 
-.inline-block {
-  display: inline-block;
-  margin: 0 auto;
+.bottom-input {
+  position: absolute;
+  bottom: 25%;
+  left: 0;
+  right: 0;
 }
 
 .input-group {
+  margin: 0 auto;
   display: flex;
-  margin-left: 80px;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 300px;
+}
+@media screen and (min-width: 640px) {
+  .input-group {
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: 40rem;
+  }
 }
 
 input {
+  padding-left: 0.6rem;
+  margin-left: -0.3rem;
+  margin-top: 1rem;
+  width: 100%;
   background-color: transparent;
+
   border: transparent;
   color: white;
-  border-left: 2px solid #b4b4b4;
-  padding-left: 10px;
-  margin: 0 15px;
+  border-left: 2px solid #999999;
+
   filter: blur(0.07rem);
   font-size: 1.05rem;
   color: #b4b4b4;
 }
+
+@media screen and (min-width: 640px) {
+  input {
+    margin-left: 1rem;
+  }
+}
+
 input::placeholder {
   color: #999999;
+}
+
+input:focus {
+  outline: none;
+  border-left: 2px solid white;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -370,8 +445,8 @@ input[type="number"] {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 3s;
-  transition-delay: 0.5s;
+  transition: opacity 2.6s;
+  transition-delay: 0.4s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
