@@ -7,6 +7,8 @@
     <div id="pixiApp" class="noselect"></div>
     <canvas id="canvas" class="noselect"></canvas>
 
+    <div class="popup-orientation"><p>Please rotate your device</p></div>
+
     <div class="example h-full">
       <transition name="fade" mode="out-in" appear>
         <PageHome
@@ -65,8 +67,18 @@ export default {
   },
   components: { PageHome, PageLoading, PageExperience },
   mounted() {
-    // this.filmgrain();
+    this.filmgrain();
     // this.drawCanvas();
+
+    if (window.matchMedia("(orientation: portrait)").matches) {
+      // you're in PORTRAIT mode
+      console.log("you're in PORTRAIT mode");
+    }
+
+    if (window.matchMedia("(orientation: landscape)").matches) {
+      // you're in LANDSCAPE mode
+      console.log("you're in LANDSCAPE mode");
+    }
 
     if (this.state.screen === "register") {
       console.log("You are registering right?");
@@ -239,6 +251,21 @@ export default {
 </script>
 
 <style>
+.popup-orientation {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 11;
+  justify-content: center;
+  align-items: center;
+}
+.popup-orientation p {
+  filter: blur(0.06rem);
+}
 #canvas {
   position: absolute;
   top: 0;
@@ -265,6 +292,11 @@ body {
   background-color: black;
   color: #b4b4b4;
   overflow: hidden;
+}
+@media screen and (orientation: portrait) {
+  .popup-orientation {
+    display: flex;
+  }
 }
 
 *::-moz-selection {

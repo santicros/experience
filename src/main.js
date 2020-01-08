@@ -5,9 +5,11 @@ import fullscreen from 'vue-fullscreen'
 import Vue2TouchEvents from 'vue2-touch-events'
 
 
+
 Vue.use(VueAnime)
 Vue.use(fullscreen)
 Vue.use(Vue2TouchEvents)
+
 
 Vue.config.productionTip = false
 
